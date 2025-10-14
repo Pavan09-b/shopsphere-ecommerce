@@ -15,7 +15,7 @@ const Profile = () => {
     const { user } = useSelector(store => store.user)
     const dispatch = useDispatch()
     const params = useParams()
-    const userId = params.id
+    const userId = params.userId
     const [updateUser, setUpdateUser] = useState({
         firstName: user?.firstName,
         lastName: user?.lastName,

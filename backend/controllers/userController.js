@@ -9,7 +9,7 @@ import cloudinary from "../utils/cloudinary.js";
 export const register = async (req, res) => {
     try {
         const { firstName, lastName, email, password } = req.body;
-        if (!firstName || !lastName || !email || !password ) {
+        if (!firstName || !lastName || !email || !password) {
             res.status(400).json({
                 message: 'All fields are required',
                 success: false
@@ -248,7 +248,7 @@ export const verifyOTP = async (req, res) => {
         }
 
         const user = await User.findOne({ email })
-         if (!user) {
+        if (!user) {
             return res.status(400).json({
                 success: false,
                 message: 'User not found'
@@ -278,10 +278,10 @@ export const verifyOTP = async (req, res) => {
         user.otp = null
         user.otpExpiry = null
         await user.save()
-        
+
         return res.status(200).json({
-            success:true,
-            messaeg:'OTP verified successfully'
+            success: true,
+            messaeg: 'OTP verified successfully'
         })
 
     } catch (error) {
@@ -292,28 +292,28 @@ export const verifyOTP = async (req, res) => {
     }
 }
 
-export const changePassword = async (req, res) =>{
+export const changePassword = async (req, res) => {
     try {
-        const {newPassword, confirmPassword} = req.body
-        const {email} = req.params
-        const user = await User.findOne({email})
-        if(!user){
+        const { newPassword, confirmPassword } = req.body
+        const { email } = req.params
+        const user = await User.findOne({ email })
+        if (!user) {
             return res.status(400).json({
-                success:false,
-                message:'User not found'
+                success: false,
+                message: 'User not found'
             })
         }
-        if(!newPassword || !confirmPassword){
+        if (!newPassword || !confirmPassword) {
             return res.status(400).json({
-                success:false,
-                message:'All fields are required'
+                success: false,
+                message: 'All fields are required'
             })
         }
 
-        if(newPassword !== confirmPassword){
+        if (newPassword !== confirmPassword) {
             return res.status(400).json({
-                success:false,
-                message:'Password do not match'
+                success: false,
+                message: 'Password do not match'
             })
         }
 
@@ -321,132 +321,135 @@ export const changePassword = async (req, res) =>{
         user.password = hashedPassword
         await user.save()
         return res.status(200).json({
-            success:true,
-            message:'Password changed successfully'
+            success: true,
+            message: 'Password changed successfully'
         })
     } catch (error) {
         return res.status(500).json({
-            success:false,
-            message:error.message
+            success: false,
+            message: error.message
         })
     }
 }
 
-export const allUser = async (_, res)=>{
+export const allUser = async (_, res) => {
     try {
         const users = await User.find()
         return res.status(200).json({
-            success:true,
+            success: true,
             users
         })
     } catch (error) {
-         return res.status(500).json({
-            success:false,
-            message:error.message
+        return res.status(500).json({
+            success: false,
+            message: error.message
         })
     }
 }
 
 export const updateUser = async (req, res) => {
-  try {
-    const userIdToUpdate = req.params.id; // the ID of the user we want to update
-    const loggedInUser = req.user;        // from isAuthenticated middleware
-    const { firstName, lastName, address, city, zipCode, phoneNo, role } = req.body;
+    try {
+        const userIdToUpdate = req.params.id; // the ID of the user we want to update
+        const loggedInUser = req.user;        // from isAuthenticated middleware
+        const { firstName, lastName, address, city, zipCode, phoneNo, role } = req.body;
 
-    // Check permission: only self or admin can update
-    if (
-      loggedInUser._id.toString() !== userIdToUpdate &&
-      loggedInUser.role !== "admin"
-    ) {
-      return res.status(403).json({
-        success: false,
-        message: "You are not allowed to update this profile",
-      });
+        console.log("Logged-in user ID:", loggedInUser._id.toString());
+        console.log("Requested user ID:", userIdToUpdate);
+
+        // Check permission: only self or admin can update
+        if (
+            loggedInUser._id.toString() !== userIdToUpdate &&
+            loggedInUser.role !== "admin"
+        ) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not allowed to update this profile",
+            });
+        }
+
+        // Find user
+        let user = await User.findById(userIdToUpdate);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        let profilePicUrl = user.profilePic;
+        let profilePicPublicId = user.profilePicPublicId;
+
+        // If a new file is uploaded
+        if (req.file) {
+            if (profilePicPublicId) {
+                await cloudinary.uploader.destroy(profilePicPublicId);
+            }
+
+            const uploadResult = await new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream(
+                    { folder: "profiles" },
+                    (error, result) => {
+                        if (error) reject(error);
+                        else resolve(result);
+                    }
+                );
+                stream.end(req.file.buffer);
+            });
+
+            profilePicUrl = uploadResult.secure_url;
+            profilePicPublicId = uploadResult.public_id;
+        }
+
+        // Update fields
+        user.firstName = firstName || user.firstName;
+        user.lastName = lastName || user.lastName;
+        user.address = address || user.address;
+        user.city = city || user.city;
+        user.zipCode = zipCode || user.zipCode;
+        user.phoneNo = phoneNo || user.phoneNo;
+        user.role = role;
+        user.profilePic = profilePicUrl;
+        user.profilePicPublicId = profilePicPublicId;
+
+        const updatedUser = await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Profile updated successfully",
+            user: updatedUser,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
     }
-
-    // Find user
-    let user = await User.findById(userIdToUpdate);
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    }
-
-    let profilePicUrl = user.profilePic;
-    let profilePicPublicId = user.profilePicPublicId;
-
-    // If a new file is uploaded
-    if (req.file) {
-      if (profilePicPublicId) {
-        await cloudinary.uploader.destroy(profilePicPublicId);
-      }
-
-      const uploadResult = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: "profiles" },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result);
-          }
-        );
-        stream.end(req.file.buffer);
-      });
-
-      profilePicUrl = uploadResult.secure_url;
-      profilePicPublicId = uploadResult.public_id;
-    }
-
-    // Update fields
-    user.firstName = firstName || user.firstName;
-    user.lastName = lastName || user.lastName;
-    user.address = address || user.address;
-    user.city = city || user.city;
-    user.zipCode = zipCode || user.zipCode;
-    user.phoneNo = phoneNo || user.phoneNo;
-    user.role = role;
-    user.profilePic = profilePicUrl;
-    user.profilePicPublicId = profilePicPublicId;
-
-    const updatedUser = await user.save();
-
-    res.status(200).json({
-      success: true,
-      message: "Profile updated successfully",
-      user: updatedUser,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message,
-    });
-  }
 };
 
 
 export const getUserById = async (req, res) => {
-  try {
-    const { userId } = req.params; // extract userId from request params
+    try {
+        const { userId } = req.params; // extract userId from request params
 
-    const user = await User.findById(userId).select("-password -otp -otpExpiry -token"); 
-    // excluding sensitive fields
+        const user = await User.findById(userId).select("-password -otp -otpExpiry -token");
+        // excluding sensitive fields
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            user,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: "Server error",
+            error: error.message,
+        });
     }
-
-    res.status(200).json({
-      success: true,
-      user,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Server error",
-      error: error.message,
-    });
-  }
 };

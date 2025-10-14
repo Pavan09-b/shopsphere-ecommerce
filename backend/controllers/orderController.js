@@ -161,10 +161,6 @@ export const getMyOrder = async (req, res) => {
       }) // fetch product details
       .populate("user", "firstName lastName email"); // fetch user info
 
-    // if (!orders || orders.length === 0) {
-    //   return res.status(404).json({ message: "No orders found for this user" });
-    // }
-
     res.status(200).json({
       success: true,
       count: orders.length,

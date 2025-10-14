@@ -23,11 +23,12 @@ import ShowUserOrders from './pages/Admin/ShowUserOrders'
 import Profile from './pages/profile'
 import UserInfo from './pages/Admin/UserInfo'
 import AdminSales from './pages/Admin/AdminSales'
+import Footer from './components/Footer'
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <><Navbar /><Home /></>
+    element: <><Navbar /><Home /><Footer/></>
   },
   {
     path: '/login',
@@ -47,7 +48,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/products',
-    element: <><Navbar /><Product /></>
+    element: <><Navbar /><Product /><Footer/></>
   },
   {
     path: '/products/:id',
