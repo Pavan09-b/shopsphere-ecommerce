@@ -1,2 +1,26 @@
+# Dependencies
+node_modules/
+
+# Environment variables and secrets
 .env
-/node_modules
+.env.*
+!.env.example
+!sample.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Runtime files
+pids/
+*.pid
+
+# Coverage and build output
+coverage/
+dist/
+build/
+
+# Operating system files
+.DS_Store
+Thumbs.db
