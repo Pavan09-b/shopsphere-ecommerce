@@ -14,7 +14,7 @@ const Navbar = () => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
     const admin = user?.role === "admin" ? true : false
-    const API = "http://localhost:8000/api/v1/cart";
+    const API = `${import.meta.env.VITE_URL}/api/v1/cart`;
     const accessToken = localStorage.getItem('accessToken')
 
 
