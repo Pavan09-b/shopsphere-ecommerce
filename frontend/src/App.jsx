@@ -11,7 +11,7 @@ import About from './pages/About'
 import Cart from './pages/Cart'
 import Dashboard from './pages/Dashboard'
 import SingleProduct from './pages/SingleProduct'
-import ProtectedRoute from './components/protectedRoute'
+import ProtectedRoute from "./components/ProtectedRoute";
 import AddProduct from './pages/Admin/AddProduct'
 import AdminProduct from './pages/Admin/AdminProduct'
 import AddressForm from './pages/AddressForm'
