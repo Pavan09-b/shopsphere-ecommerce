@@ -88,7 +88,7 @@ const AddressForm = () => {
   //       key: import.meta.env.VITE_RAZORPAY_KEY_ID, // replace with your Razorpay Key ID
   //       amount: data.order.amount,
   //       currency: data.order.currency,
-  //       name: "Ekart",
+  //       name: "ShopSphere",
   //       description: "Order Payment",
   //       order_id: data.order.id,
   //       handler: async function (response) {
@@ -147,7 +147,7 @@ const AddressForm = () => {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
       amount: data.order.amount,
       currency: data.order.currency,
-      name: "Ekart",
+      name: "ShopSphere",
       description: "Order Payment",
       order_id: data.order.id,
 

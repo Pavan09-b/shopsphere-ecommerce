@@ -58,7 +58,7 @@ const Navbar = () => {
                 {/* logo section */}
                 <div>
                     <img src="/Ekart.png" alt="" className='w-[100px]'/>
-                    {/* <h1 className='font-bold text-2xl'>Ekart</h1> */}
+                    {/* <h1 className='font-bold text-2xl'>ShopSphere</h1> */}
                 </div>
                 {/* nav section */}
                 <nav className='flex gap-10 justify-between items-center'>
